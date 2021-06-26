@@ -1,0 +1,3 @@
+%{
+  "basex": {:hex, :basex, "1.3.2", "3d691095958e64d655795312be4e42f88dbac18e23896da02079e57ecd060573", [:mix], [], "hexpm", "4c4ba558d6fe92a962ebdf3d16b85fa1767fd942f1879e074b28c8432854ab51"},
+}
