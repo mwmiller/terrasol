@@ -5,11 +5,13 @@ defmodule TerrasolAuthorTest do
   test "valid from spec" do
     assert Terrasol.Author.parse("@suzy.bo5sotcncvkr7p4c3lnexxpb4hjqi5tcxcov5b4irbnnz2teoifua") ==
              {"suzy",
-              47_156_363_425_378_973_145_356_108_481_427_676_913_709_812_305_928_140_414_295_363_664_859_552_638_071}
+              <<119, 100, 233, 137, 162, 170, 163, 247, 240, 91, 91, 73, 123, 188, 60, 58, 96,
+                142, 204, 87, 19, 171, 208, 241, 17, 11, 91, 157, 76, 142, 65, 104>>}
 
     assert Terrasol.Author.parse("@js80.bnkivt7pdzydgjagu4ooltwmhyoolgidv6iqrnlh5dc7duiuywbfq") ==
              {"js80",
-              34_235_478_715_415_188_160_911_838_470_992_347_459_983_493_941_183_478_312_615_283_457_026_055_311_722}
+              <<106, 145, 89, 253, 227, 206, 6, 100, 128, 212, 227, 156, 185, 217, 135, 195, 156,
+                179, 32, 117, 242, 33, 22, 172, 253, 24, 190, 58, 34, 152, 176, 75>>}
   end
 
   test "key roundtrip from spec" do

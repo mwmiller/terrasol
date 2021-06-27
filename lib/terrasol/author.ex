@@ -11,7 +11,7 @@ defmodule Terrasol.Author do
     case {verifyname(name), Terrasol.bdecode(encpub)} do
       {_, :error} -> :error
       {:error, _} -> :error
-      {shortname, key} -> {shortname, :binary.decode_unsigned(key, :little)}
+      {shortname, key} -> {shortname, key}
     end
   end
 
