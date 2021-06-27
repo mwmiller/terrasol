@@ -11,4 +11,16 @@ defmodule TerrasolAuthorTest do
              {"js80",
               34_235_478_715_415_188_160_911_838_470_992_347_459_983_493_941_183_478_312_615_283_457_026_055_311_722}
   end
+
+  test "key roundtrip from spec" do
+    assert "b4p3qioleiepi5a6iaalf6pm3qhgapkftxnxcszjwa352qr6gempa"
+           |> Terrasol.bdecode()
+           |> Ed25519.derive_public_key()
+           |> Terrasol.bencode() == "bnkivt7pdzydgjagu4ooltwmhyoolgidv6iqrnlh5dc7duiuywbfq"
+
+    assert "becvcwa5dp6kbmjvjs26pe76xxbgjn3yw4cqzl42jqjujob7mk4xq"
+           |> Terrasol.bdecode()
+           |> Ed25519.derive_public_key()
+           |> Terrasol.bencode() == "bo5sotcncvkr7p4c3lnexxpb4hjqi5tcxcov5b4irbnnz2teoifua"
+  end
 end

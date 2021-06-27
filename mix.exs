@@ -18,6 +18,8 @@ defmodule Terrasol.MixProject do
   end
 
   defp deps do
-    []
+    [
+    {:ed25519, "~> 1.3"}
+    ]
   end
 end
