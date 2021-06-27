@@ -17,4 +17,6 @@ defmodule Terrasol do
       {:ok, val} -> val
     end
   end
+
+  def bdecode(_), do: :error
 end
