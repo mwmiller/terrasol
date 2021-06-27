@@ -28,6 +28,9 @@ defmodule Terrasol.Workspace do
   defp restsuf([h | t], {n, s}) when h in 48..57 or h in 97..122,
     do: restsuf(t, {n, [h | s]})
 
+  defp restsuf([], {[], _}), do: :error
+  defp restsuf([], {_, []}), do: :error
+
   defp restsuf([], {n, s}) when length(n) <= 15 and length(s) <= 63,
     do: {Enum.reverse(n) |> to_string, Enum.reverse(s) |> to_string}
 
