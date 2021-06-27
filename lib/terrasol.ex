@@ -1,7 +1,4 @@
 defmodule Terrasol do
-  @alphabet 'abcdefghijklmnopqrstuvwxyz234567'
-  BaseX.prepare_module("Earthstar", @alphabet, 4)
-
   @moduledoc """
   Documentation for `Terrasol`.
   """
@@ -9,9 +6,15 @@ defmodule Terrasol do
   @doc """
   the Base32 encoding standard for Earthstar
   """
+  @base_opts [case: :lower, padding: false]
   def bencode(bits) do
-    "b" <> BaseX.Earthstar.encode(bits)
+    "b" <> Base.encode32(bits, @base_opts)
   end
 
-  def bdecode(<<"b", string::binary>>), do: BaseX.Earthstar.decode(string)
+  def bdecode(<<"b", string::binary>>) do
+    case Base.decode32(string, @base_opts) do
+      :error -> :error
+      {:ok, val} -> val
+    end
+  end
 end

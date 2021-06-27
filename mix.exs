@@ -18,8 +18,6 @@ defmodule Terrasol.MixProject do
   end
 
   defp deps do
-    [
-      {:basex, "~> 1.3"},
-    ]
+    []
   end
 end
