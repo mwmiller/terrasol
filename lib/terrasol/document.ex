@@ -36,6 +36,28 @@ defmodule Terrasol.Document do
           workspace: String.t()
         }
 
+  def compute_hash(doc) do
+    Terrasol.bencode(
+      :crypto.hash(
+        :sha256,
+        gather_fields(
+          doc,
+          [:author, :contentHash, :deleteAfter, :format, :path, :timestamp, :workspace],
+          ""
+        )
+      )
+    )
+  end
+
+  defp gather_fields(_, [], str), do: str
+
+  defp gather_fields(doc, [f | rest], str) do
+    case Map.fetch!(doc, f) do
+      nil -> gather_fields(doc, rest, str)
+      val -> gather_fields(doc, rest, str <> "#{f}\t#{val}\n")
+    end
+  end
+
   def validate(document)
 
   def validate(%__MODULE__{} = doc) do
@@ -122,17 +144,41 @@ defmodule Terrasol.Document do
     validate_fields(doc, rest, errlist)
   end
 
+  @nul32 <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0>>
   defp validate_fields(doc, [f | rest], errs) when f == :contentHash do
     computed_hash = :crypto.hash(:sha256, doc.content)
 
     published_hash =
       case Terrasol.bdecode(doc.contentHash) do
-        :error -> ""
+        :error -> @nul32
         val -> val
       end
 
     errlist =
       case Equivalex.equal?(computed_hash, published_hash) do
+        true -> errs
+        false -> [f | errs]
+      end
+
+    validate_fields(doc, rest, errlist)
+  end
+
+  defp validate_fields(doc, [f | rest], errs) when f == :signature do
+    sig =
+      case Terrasol.bdecode(doc.signature) do
+        :error -> @nul32
+        val -> val
+      end
+
+    author_pub_key =
+      case Terrasol.Author.parse(doc.author) do
+        :error -> @nul32
+        {_u, pk} -> pk
+      end
+
+    errlist =
+      case Ed25519.valid_signature?(sig, compute_hash(doc), author_pub_key) do
         true -> errs
         false -> [f | errs]
       end
