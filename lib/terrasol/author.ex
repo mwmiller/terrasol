@@ -1,17 +1,38 @@
 defmodule Terrasol.Author do
+  @enforce_keys [
+    :string,
+    :shortname,
+    :publickey
+  ]
+  defstruct string: "",
+            shortname: "",
+            publickey: ""
+
+  @typedoc "An Earthstar author"
+  @type t() :: %__MODULE__{
+          string: String.t(),
+          shortname: String.t(),
+          publickey: binary
+        }
+  defimpl String.Chars, for: Terrasol.Author do
+    def to_string(author), do: "#{author.string}"
+  end
+
   @doc """
-  Parse an author address into a {name, pubkey} tuple.
+  Parse an author address into a Terrasol.Author
 
   :error on invalid input
   """
 
   def parse(address)
 
-  def parse(<<"@", name::binary-size(4), ".", encpub::binary-size(53)>>) do
+  def parse(%Terrasol.Author{} = author), do: author
+
+  def parse(<<"@", name::binary-size(4), ".", encpub::binary-size(53)>> = string) do
     case {verifyname(name), Terrasol.bdecode(encpub)} do
       {_, :error} -> :error
       {:error, _} -> :error
-      {shortname, key} -> {shortname, key}
+      {shortname, key} -> %Terrasol.Author{string: string, shortname: shortname, publickey: key}
     end
   end
 

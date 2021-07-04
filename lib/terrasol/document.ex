@@ -25,7 +25,7 @@ defmodule Terrasol.Document do
 
   @typedoc "An Earthstar document"
   @type t() :: %__MODULE__{
-          author: String.t(),
+          author: String.t() | Terrasol.Author.t(),
           content: binary(),
           contentHash: String.t(),
           deleteAfter: pos_integer(),
@@ -58,10 +58,10 @@ defmodule Terrasol.Document do
     end
   end
 
-  def validate(document)
+  def parse(document)
 
-  def validate(%__MODULE__{} = doc) do
-    validate_fields(
+  def parse(%__MODULE__{} = doc) do
+    parse_fields(
       doc,
       [
         :author,
@@ -78,45 +78,49 @@ defmodule Terrasol.Document do
     )
   end
 
-  def validate(_), do: {:error, [:nondocument]}
+  def parse(_), do: {:error, [:nondocument]}
 
-  defp validate_fields(doc, [], []), do: {:ok, doc}
-  defp validate_fields(_, [], errs), do: {:invalid, Enum.sort(errs)}
+  defp parse_fields(doc, [], []), do: {:ok, doc}
+  defp parse_fields(_, [], errs), do: {:invalid, Enum.sort(errs)}
 
-  defp validate_fields(doc, [f | rest], errs) when f == :author do
+  defp parse_fields(doc, [f | rest], errs) when f == :author do
+    author = Terrasol.Author.parse(doc.author)
+
     errlist =
-      case Terrasol.Author.parse(doc.author) do
-        {_, _} -> errs
+      case author do
+        %Terrasol.Author{} -> errs
         :error -> [f | errs]
       end
 
-    validate_fields(doc, rest, errlist)
+    parse_fields(%{doc | author: author}, rest, errlist)
   end
 
-  defp validate_fields(doc, [f | rest], errs) when f == :workspace do
+  defp parse_fields(doc, [f | rest], errs) when f == :workspace do
+    ws = Terrasol.Workspace.parse(doc.workspace)
+
     errlist =
-      case Terrasol.Workspace.parse(doc.workspace) do
-        {_, _} -> errs
+      case ws do
+        %Terrasol.Workspace{} -> errs
         :error -> [f | errs]
       end
 
-    validate_fields(doc, rest, errlist)
+    parse_fields(%{doc | workspace: ws}, rest, errlist)
   end
 
-  defp validate_fields(doc, [f | rest], errs) when f == :format do
+  defp parse_fields(doc, [f | rest], errs) when f == :format do
     errlist =
       case doc.format do
         "es.4" -> errs
         _ -> [f | errs]
       end
 
-    validate_fields(doc, rest, errlist)
+    parse_fields(doc, rest, errlist)
   end
 
   @min_ts 10_000_000_000_000
   @max_ts 9_007_199_254_740_990
 
-  defp validate_fields(doc, [f | rest], errs) when f == :timestamp do
+  defp parse_fields(doc, [f | rest], errs) when f == :timestamp do
     # Spec max int or 10 minutes into the future
     max_allowed = Enum.min([@max_ts, :erlang.system_time(:microsecond) + 600_000_000])
 
@@ -128,11 +132,11 @@ defmodule Terrasol.Document do
         false -> [f | errs]
       end
 
-    validate_fields(doc, rest, errlist)
+    parse_fields(doc, rest, errlist)
   end
 
   @max_doc_bytes 4_000_000
-  defp validate_fields(doc, [f | rest], errs) when f == :content do
+  defp parse_fields(doc, [f | rest], errs) when f == :content do
     val = doc.content
 
     errlist =
@@ -141,12 +145,12 @@ defmodule Terrasol.Document do
         false -> [f | errs]
       end
 
-    validate_fields(doc, rest, errlist)
+    parse_fields(doc, rest, errlist)
   end
 
   @nul32 <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0>>
-  defp validate_fields(doc, [f | rest], errs) when f == :contentHash do
+  defp parse_fields(doc, [f | rest], errs) when f == :contentHash do
     computed_hash = :crypto.hash(:sha256, doc.content)
 
     published_hash =
@@ -161,10 +165,10 @@ defmodule Terrasol.Document do
         false -> [f | errs]
       end
 
-    validate_fields(doc, rest, errlist)
+    parse_fields(doc, rest, errlist)
   end
 
-  defp validate_fields(doc, [f | rest], errs) when f == :signature do
+  defp parse_fields(doc, [f | rest], errs) when f == :signature do
     sig =
       case Terrasol.bdecode(doc.signature) do
         :error -> @nul32
@@ -174,7 +178,7 @@ defmodule Terrasol.Document do
     author_pub_key =
       case Terrasol.Author.parse(doc.author) do
         :error -> @nul32
-        {_u, pk} -> pk
+        %Terrasol.Author{publickey: pk} -> pk
       end
 
     errlist =
@@ -183,9 +187,9 @@ defmodule Terrasol.Document do
         false -> [f | errs]
       end
 
-    validate_fields(doc, rest, errlist)
+    parse_fields(doc, rest, errlist)
   end
 
   # Skip unimplemented checks
-  defp validate_fields(doc, [_f | rest], errs), do: validate_fields(doc, rest, errs)
+  defp parse_fields(doc, [_f | rest], errs), do: parse_fields(doc, rest, errs)
 end
