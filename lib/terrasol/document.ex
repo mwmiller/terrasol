@@ -13,6 +13,7 @@ defmodule Terrasol.Document do
     :timestamp,
     :workspace
   ]
+  @derive Jason.Encoder
   defstruct author: "",
             content: "",
             contentHash: "",
