@@ -61,6 +61,16 @@ defmodule Terrasol.Document do
 
   def parse(document)
 
+  def parse(doc) when is_binary(doc) do
+    try do
+      doc
+      |> Jason.decode!(keys: :atoms!)
+      |> parse()
+    rescue
+      _ -> {:error, [:badjson]}
+    end
+  end
+
   def parse(%__MODULE__{} = doc) do
     parse_fields(
       doc,
@@ -79,7 +89,11 @@ defmodule Terrasol.Document do
     )
   end
 
-  def parse(_), do: {:error, [:nondocument]}
+  def parse(%{} = doc) do
+    struct(__MODULE__, doc) |> parse
+  end
+
+  def parse(_), do: {:error, [:badformat]}
 
   defp parse_fields(doc, [], []), do: {:ok, doc}
   defp parse_fields(_, [], errs), do: {:invalid, Enum.sort(errs)}
