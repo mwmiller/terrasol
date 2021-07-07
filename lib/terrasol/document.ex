@@ -78,9 +78,9 @@ defmodule Terrasol.Document do
         :author,
         :content,
         :contentHash,
+        :path,
         :deleteAfter,
         :format,
-        :path,
         :signature,
         :timestamp,
         :workspace
@@ -120,6 +120,18 @@ defmodule Terrasol.Document do
       end
 
     parse_fields(%{doc | workspace: ws}, rest, errlist)
+  end
+
+  defp parse_fields(doc, [f | rest], errs) when f == :path do
+    path = Terrasol.Path.parse(doc.path)
+
+    errlist =
+      case path do
+        %Terrasol.Path{} -> errs
+        :error -> [f | errs]
+      end
+
+    parse_fields(%{doc | path: path}, rest, errlist)
   end
 
   defp parse_fields(doc, [f | rest], errs) when f == :format do

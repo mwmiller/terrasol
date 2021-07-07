@@ -3,7 +3,7 @@ defmodule Terrasol do
   Documentation for `Terrasol`.
   """
 
-  defimpl Jason.Encoder, for: [Terrasol.Author, Terrasol.Workspace] do
+  defimpl Jason.Encoder, for: [Terrasol.Author, Terrasol.Workspace, Terrasol.Path] do
     def encode(struct, opts) do
       Jason.Encode.string(struct.string, opts)
     end
