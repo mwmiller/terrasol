@@ -147,6 +147,23 @@ defmodule Terrasol.Document do
   @min_ts 10_000_000_000_000
   @max_ts 9_007_199_254_740_990
 
+  defp parse_fields(doc, [f | rest], errs) when f == :deleteAfter do
+    # Spec min int or after now from our perspective
+    min_allowed = Enum.max([@min_ts, :erlang.system_time(:microsecond)])
+
+    val = doc.deleteAfter
+    ephem = doc.path.ephemeral
+
+    errlist =
+      case (is_nil(val) and not ephem) or
+             (ephem and is_integer(val) and val >= min_allowed and val <= @max_ts) do
+        true -> errs
+        false -> [f | errs]
+      end
+
+    parse_fields(doc, rest, errlist)
+  end
+
   defp parse_fields(doc, [f | rest], errs) when f == :timestamp do
     # Spec max int or 10 minutes into the future
     max_allowed = Enum.min([@max_ts, :erlang.system_time(:microsecond) + 600_000_000])
