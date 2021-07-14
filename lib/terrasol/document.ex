@@ -61,19 +61,32 @@ defmodule Terrasol.Document do
   def generate(map) do
     generate(map, [
       :timestamp,
+      :ttl,
+      :deleteAfter,
       :format,
       :workspace,
       :path,
       :author,
       :content,
       :contentHash,
-      :deleteAfter,
       :signature
     ])
   end
 
   defp generate(map, []), do: parse(map)
   defp generate(map, [key | rest]), do: generate(val_or_gen(map, key), rest)
+
+  defp val_or_gen(map, :ttl) do
+    case Map.fetch(map, :ttl) do
+      :error ->
+        map
+
+      {:ok, val} ->
+        map
+        |> Map.delete(:ttl)
+        |> Map.put(:deleteAfter, map.timestamp + val * 1_000_000)
+    end
+  end
 
   defp val_or_gen(map, key) do
     case Map.fetch(map, key) do
@@ -85,7 +98,14 @@ defmodule Terrasol.Document do
   defp default(:timestamp, _), do: :erlang.system_time(:microsecond)
   defp default(:format, _), do: "es.4"
   defp default(:workspace, _), do: "+terrasol.scratch"
-  defp default(:path, _), do: "/terrasol/scratch/default.txt"
+
+  defp default(:path, map) do
+    case(Map.fetch(map, :deleteAfter)) do
+      :error -> "/terrasol/scratch/default.txt"
+      _ -> "/terrasol/scratch/!default.txt"
+    end
+  end
+
   defp default(:author, _), do: Terrasol.Author.build(%{})
   defp default(:content, _), do: "Auto-text from Terrasol."
   defp default(:contentHash, map), do: map |> content_hash |> Terrasol.bencode()
@@ -95,6 +115,7 @@ defmodule Terrasol.Document do
     {priv, pub} =
       case Terrasol.Author.parse(map.author) do
         :error -> {@nul32, @nul32}
+        %Terrasol.Author{privatekey: nil, publickey: pk} -> {@nul32, pk}
         %Terrasol.Author{privatekey: sk, publickey: pk} -> {sk, pk}
       end
 
