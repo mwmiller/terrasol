@@ -102,6 +102,7 @@ defmodule Terrasol.Document do
   defp default(:path, map) do
     case(Map.fetch(map, :deleteAfter)) do
       :error -> "/terrasol/scratch/default.txt"
+      {:ok, nil} -> "/terrasol/scratch/default.txt"
       _ -> "/terrasol/scratch/!default.txt"
     end
   end
@@ -232,10 +233,11 @@ defmodule Terrasol.Document do
       end
 
     errlist =
-      case (is_nil(val) and not ephem) or
-             (ephem and is_integer(val) and val >= min_allowed and val <= @max_ts) do
-        true -> errs
-        false -> [f | errs]
+      case {is_nil(val), ephem, not is_integer(val) or (val >= min_allowed and val <= @max_ts)} do
+        {true, true, _} -> [:ephem_delete_mismatch | errs]
+        {false, false, _} -> [:ephem_delete_mismatch | errs]
+        {_, _, false} -> [f | errs]
+        {_, _, true} -> errs
       end
 
     parse_fields(doc, rest, errlist)
