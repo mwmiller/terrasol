@@ -1,4 +1,6 @@
 defmodule Terrasol.Document do
+  @nul32 <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0>>
   @moduledoc """
   The core document struct
   """
@@ -37,7 +39,7 @@ defmodule Terrasol.Document do
           workspace: String.t()
         }
 
-  def compute_hash(doc) do
+  defp compute_hash(doc) do
     Terrasol.bencode(
       :crypto.hash(
         :sha256,
@@ -48,6 +50,55 @@ defmodule Terrasol.Document do
         )
       )
     )
+  end
+
+  defp content_hash(doc), do: :crypto.hash(:sha256, doc.content)
+
+  @doc """
+  Generate a hopefully valid `Terrasol.Document` from a 
+  map containing all or some of the required keys.
+  """
+  def generate(map) do
+    generate(map, [
+      :timestamp,
+      :format,
+      :workspace,
+      :path,
+      :author,
+      :content,
+      :contentHash,
+      :deleteAfter,
+      :signature
+    ])
+  end
+
+  defp generate(map, []), do: parse(map)
+  defp generate(map, [key | rest]), do: generate(val_or_gen(map, key), rest)
+
+  defp val_or_gen(map, key) do
+    case Map.fetch(map, key) do
+      :error -> Map.put(map, key, default(key, map))
+      _ -> map
+    end
+  end
+
+  defp default(:timestamp, _), do: :erlang.system_time(:microsecond)
+  defp default(:format, _), do: "es.4"
+  defp default(:workspace, _), do: "+terrasol.scratch"
+  defp default(:path, _), do: "/terrasol/scratch/default.txt"
+  defp default(:author, _), do: Terrasol.Author.build(%{})
+  defp default(:content, _), do: "Auto-text from Terrasol."
+  defp default(:contentHash, map), do: map |> content_hash |> Terrasol.bencode()
+  defp default(:deleteAfter, _), do: nil
+
+  defp default(:signature, map) do
+    {priv, pub} =
+      case Terrasol.Author.parse(map.author) do
+        :error -> {@nul32, @nul32}
+        %Terrasol.Author{privatekey: sk, publickey: pk} -> {sk, pk}
+      end
+
+    map |> compute_hash |> Ed25519.signature(priv, pub) |> Terrasol.bencode()
   end
 
   defp gather_fields(_, [], str), do: str
@@ -152,7 +203,12 @@ defmodule Terrasol.Document do
     min_allowed = Enum.max([@min_ts, :erlang.system_time(:microsecond)])
 
     val = doc.deleteAfter
-    ephem = doc.path.ephemeral
+
+    ephem =
+      case doc.path do
+        %Terrasol.Path{ephemeral: val} -> val
+        _ -> false
+      end
 
     errlist =
       case (is_nil(val) and not ephem) or
@@ -192,10 +248,8 @@ defmodule Terrasol.Document do
     parse_fields(doc, rest, errlist)
   end
 
-  @nul32 <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-           0, 0, 0>>
   defp parse_fields(doc, [f | rest], errs) when f == :contentHash do
-    computed_hash = :crypto.hash(:sha256, doc.content)
+    computed_hash = content_hash(doc)
 
     published_hash =
       case Terrasol.bdecode(doc.contentHash) do
