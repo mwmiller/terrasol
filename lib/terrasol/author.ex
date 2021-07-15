@@ -119,8 +119,13 @@ defmodule Terrasol.Author do
 
   def build(input) when is_map(input), do: build(%{shortname: build_random_sn([])})
 
-  @snok 'abcdefghijklmnopqrstuvwxyz'
-  defp build_random_sn(list) when length(list) == 4, do: to_string(list)
+  @snfirst 'abcdefghijklmnopqrstuvwxyz'
+  @snok @snfirst ++ '1234567890'
+  defp build_random_sn(list) when length(list) == 4, do: list |> Enum.reverse() |> to_string
+
+  defp build_random_sn([]) do
+    build_random_sn([Enum.random(@snfirst)])
+  end
 
   defp build_random_sn(list) do
     build_random_sn([Enum.random(@snok) | list])
@@ -144,8 +149,8 @@ defmodule Terrasol.Author do
 
   def parse(%Terrasol.Author{} = author), do: author
 
-  def parse(<<"@", name::binary-size(4), ".", encpub::binary-size(53)>> = string) do
-    case {verifyname(name), Terrasol.bdecode(encpub)} do
+  def parse(<<"@", name::binary-size(4), ".b", encpub::binary-size(52)>> = string) do
+    case {verifyname(name), Terrasol.bdecode("b" <> encpub)} do
       {_, :error} -> :error
       {:error, _} -> :error
       {shortname, key} -> %Terrasol.Author{string: string, shortname: shortname, publickey: key}
