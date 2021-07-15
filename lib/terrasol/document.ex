@@ -84,7 +84,7 @@ defmodule Terrasol.Document do
       {:ok, val} ->
         map
         |> Map.delete(:ttl)
-        |> Map.put(:deleteAfter, map.timestamp + val * 1_000_000)
+        |> Map.put(:deleteAfter, map.timestamp + Terrasol.duration_us(val))
     end
   end
 
