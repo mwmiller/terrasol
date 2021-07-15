@@ -21,6 +21,22 @@ defmodule Terrasol.Author do
   end
 
   @doc """
+  Create a `Terrsol.Author` from a `keypair.json`-style file
+  """
+  def from_keypair_file(filename) do
+    try do
+      %{"address" => string, "secret" => privatekey} = filename |> File.read!() |> Jason.decode!()
+
+      case Terrasol.bdecode(privatekey) do
+        :error -> :error
+        pk -> build(%{string: string, privatekey: pk})
+      end
+    rescue
+      _ -> :error
+    end
+  end
+
+  @doc """
   Fill a %Terrasol.Author from a map or address string
 
   Conflict resolution is determinisitic, but depends on implementation
