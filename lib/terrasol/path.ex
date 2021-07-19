@@ -93,6 +93,8 @@ defmodule Terrasol.Path do
     parse_seg(rest, [c | curr], s, e, w)
   end
 
+  defp parse_seg(_, _, _, _, _), do: :error
+
   # I don't think the order matters, but we'll maintain 
   defp collect_writers([], writers), do: Enum.reverse(writers)
 
