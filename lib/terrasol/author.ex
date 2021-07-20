@@ -177,6 +177,7 @@ defmodule Terrasol.Author do
 
   defp verifyname(string), do: checknamelist(to_charlist(string), [])
   defp checknamelist([f | rest], []) when f in 97..122, do: checknamelist(rest, [f])
+  defp checknamelist(_, []), do: :error
 
   defp checknamelist([h | t], acc) when h in 97..122 or h in 48..57,
     do: checknamelist(t, [h | acc])

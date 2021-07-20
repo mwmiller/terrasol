@@ -35,4 +35,85 @@ defmodule TerrasolAuthorTest do
            |> Ed25519.derive_public_key()
            |> Terrasol.bencode() == "bo5sotcncvkr7p4c3lnexxpb4hjqi5tcxcov5b4irbnnz2teoifua"
   end
+
+  test "valid vectors from reference test suite" do
+    assert Terrasol.Author.parse("@suzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") ==
+             %Terrasol.Author{
+               privatekey: nil,
+               publickey:
+                 "\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF",
+               shortname: "suzy",
+               string: "@suzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+             }
+
+    assert Terrasol.Author.parse("@s999.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") ==
+             %Terrasol.Author{
+               privatekey: nil,
+               publickey:
+                 "\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF{\xDE\xF7\xBD\xEF",
+               shortname: "s999",
+               string: "@s999.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+             }
+  end
+
+  test "invalid vector from reference test suite" do
+    assert :error = Terrasol.Author.parse("")
+    assert :error = Terrasol.Author.parse("@")
+    assert :error = Terrasol.Author.parse(".")
+    assert :error = Terrasol.Author.parse("@.")
+    assert :error = Terrasol.Author.parse("@suzy.")
+    assert :error = Terrasol.Author.parse("@suzy")
+    assert :error = Terrasol.Author.parse("suzy")
+
+    assert :error =
+             Terrasol.Author.parse("@.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@suzy@bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("suzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@suzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@suzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@suzybxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@suzy.bxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse(" @suzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@suzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ")
+
+    assert :error =
+             Terrasol.Author.parse("@SUZY.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@suzy.bxxxxxXXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ")
+
+    assert :error =
+             Terrasol.Author.parse("@suzy.7xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@1uzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error =
+             Terrasol.Author.parse("@@uzy.bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+    assert :error = Terrasol.Author.parse("123")
+    assert :error = Terrasol.Author.parse(nil)
+
+    assert :error =
+             Terrasol.Author.parse("@suzy.b01xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+  end
 end
