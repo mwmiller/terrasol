@@ -1,6 +1,7 @@
 defmodule Terrasol do
   @moduledoc """
-  Documentation for `Terrasol`.
+  Various utility functions to assist with some of the
+  unique requirements for Terrasol documents.
   """
 
   defimpl Jason.Encoder, for: [Terrasol.Author, Terrasol.Workspace, Terrasol.Path] do
@@ -11,12 +12,30 @@ defmodule Terrasol do
 
   @doc """
   the Base32 encoding standard for Earthstar
+
+  iex> Terrasol.bencode("🤡💩")
+  "b6cp2jipqt6jks"
+
+  iex> Terrasol.bencode("abcdef")
+  "bmfrggzdfmy"
   """
   @base_opts [case: :lower, padding: false]
   def bencode(bits) do
     "b" <> Base.encode32(bits, @base_opts)
   end
 
+  @doc """
+  Decoding the Base32 standard for Earthstar
+
+  iex> Terrasol.bdecode("b6cp2jipqt6jks")
+  "🤡💩"
+
+  iex> Terrasol.bdecode("bmfrggzdfmy")
+  "abcdef"
+
+  iex(5)> Terrasol.bdecode("mfrggzdfmy")
+  :error
+  """
   def bdecode(<<"b", string::binary>>) do
     case Base.decode32(string, @base_opts) do
       :error -> :error
@@ -31,6 +50,19 @@ defmodule Terrasol do
 
   Integer durations are taken as a number of seconds.
   Keyword lists are interpreted for the implemented durations.
+  Unimplemented items are treated as 0
+
+  :weeks, :days, :hours, :minutes
+  :seconds, :milliseconds, :microseconds
+
+  iex> Terrasol.duration_us(600)
+  600000000
+
+  iex> Terrasol.duration_us(minutes: 10, microseconds: 321)
+  600000321
+
+  iex> Terrasol.duration_us("600s")
+  0
   """
   def duration_us(duration)
   def duration_us(duration) when is_integer(duration), do: duration_us(seconds: duration)
