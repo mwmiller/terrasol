@@ -40,7 +40,7 @@ defmodule Terrasol.Workspace do
 
   defp restname([h | t], orig, name) when h == 46, do: verifysuf(t, orig, {name, []})
 
-  defp restname([], _, _), do: :error
+  defp restname(_, _, _), do: :error
 
   defp verifysuf([f | rest], orig, {n, []}) when f in 97..122, do: restsuf(rest, orig, {n, [f]})
   defp verifysuf(_, _, _), do: :error
@@ -51,7 +51,7 @@ defmodule Terrasol.Workspace do
   defp restsuf([], _, {[], _}), do: :error
   defp restsuf([], _, {_, []}), do: :error
 
-  defp restsuf([], orig, {n, s}) when length(n) <= 15 and length(s) <= 63,
+  defp restsuf([], orig, {n, s}) when length(n) <= 15 and length(s) <= 53,
     do: %Terrasol.Workspace{
       string: orig,
       name: Enum.reverse(n) |> to_string,
