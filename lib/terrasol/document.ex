@@ -55,11 +55,11 @@ defmodule Terrasol.Document do
   defp content_hash(doc), do: :crypto.hash(:sha256, doc.content)
 
   @doc """
-  Generate a hopefully valid `Terrasol.Document` from a 
+  Build a hopefully valid `Terrasol.Document` from a 
   map containing all or some of the required keys.
   """
-  def generate(map) do
-    generate(map, [
+  def build(map) do
+    build(map, [
       :timestamp,
       :ttl,
       :deleteAfter,
@@ -73,8 +73,8 @@ defmodule Terrasol.Document do
     ])
   end
 
-  defp generate(map, []), do: parse(map)
-  defp generate(map, [key | rest]), do: generate(val_or_gen(map, key), rest)
+  defp build(map, []), do: parse(map)
+  defp build(map, [key | rest]), do: build(val_or_gen(map, key), rest)
 
   defp val_or_gen(map, :ttl) do
     case Map.fetch(map, :ttl) do
@@ -168,7 +168,7 @@ defmodule Terrasol.Document do
 
   def parse(_), do: {:error, [:badformat]}
 
-  defp parse_fields(doc, [], []), do: {:ok, doc}
+  defp parse_fields(doc, [], []), do: doc
   defp parse_fields(_, [], errs), do: {:invalid, Enum.sort(errs)}
 
   defp parse_fields(doc, [f | rest], errs) when f == :author do
