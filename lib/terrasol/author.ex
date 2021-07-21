@@ -37,6 +37,26 @@ defmodule Terrasol.Author do
   end
 
   @doc """
+  Write a `keypair.json` file from a supplied identity.
+  As a secret file, the `publickey` must be included.
+  """
+  def to_keyair_file(author, filename)
+
+  def to_keyair_file(%Terrasol.Author{privatekey: secret, string: address} = author, filename) do
+    try do
+      content = %{"address" => address, "secret" => Terrasol.bencode(secret)} |> Jason.encode!()
+
+      File.write!(filename, content)
+      File.chmod(filename, 0o600)
+      author
+    rescue
+      _ -> :error
+    end
+  end
+
+  def to_keyair_file(_, _), do: :error
+
+  @doc """
   Fill a %Terrasol.Author from a map or address string
 
   Conflict resolution is determinisitic, but depends on implementation
