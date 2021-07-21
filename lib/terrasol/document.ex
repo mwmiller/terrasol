@@ -132,6 +132,11 @@ defmodule Terrasol.Document do
     end
   end
 
+  @doc """
+  Parse and return a Terrsol.Document from a map.
+  Returns {:invalid, [error_fields]} on an invalid document
+  A string document is presumed to be JSON
+  """
   def parse(document)
 
   def parse(doc) when is_binary(doc) do
