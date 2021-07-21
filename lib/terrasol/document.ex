@@ -28,15 +28,15 @@ defmodule Terrasol.Document do
 
   @typedoc "An Earthstar document"
   @type t() :: %__MODULE__{
-          author: String.t() | Terrasol.Author.t(),
-          content: binary(),
+          author: Terrasol.Author.t(),
+          content: String.t(),
           contentHash: String.t(),
-          deleteAfter: pos_integer(),
+          deleteAfter: nil | pos_integer(),
           format: String.t(),
-          path: String.t(),
+          path: Terrasol.Path.t(),
           signature: String.t(),
           timestamp: pos_integer(),
-          workspace: String.t()
+          workspace: Terasol.Workspace.t()
         }
 
   defp compute_hash(doc) do
