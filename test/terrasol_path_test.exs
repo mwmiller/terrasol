@@ -38,9 +38,7 @@ defmodule TerrasolPathTest do
     assert :error = Terrasol.Path.parse("/tab\t")
     assert :error = Terrasol.Path.parse("/@starts/with/at/sign")
     assert :error = Terrasol.Path.parse("/food/🍆/nutrition")
-  end
-
-  test "they say legal, I say no" do
     assert :error = Terrasol.Path.parse("/about/~@suzy.abc/name")
   end
+
 end
