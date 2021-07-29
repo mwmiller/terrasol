@@ -123,22 +123,28 @@ defmodule Terrasol.Author do
       {{rpk, bpk}, short} ->
         struct(
           __MODULE__,
-          %{full | publickey: rpk}
-          |> Map.put(
-            :string,
-            "@" <> short <> "." <> bpk
-          )
+          %{full | publickey: rpk} |> Map.put(:string, "@" <> short <> "." <> bpk)
         )
     end
   end
 
-  def build(%{privatekey: sk} = full) do
-    case proper_keys(sk) do
-      :error ->
-        :error
+  def build(%{shortname: sn, privatekey: sk} = full) do
+    case {proper_keys(sk), verifyname(sn)} do
+      {:error, _} ->
+        build(Map.delete(full, :privatekey))
 
-      {rsk, _} ->
-        build(%{full | privatekey: rsk} |> Map.put(:publickey, Ed25519.derive_public_key(rsk)))
+      {_, :error} ->
+        build(Map.delete(full, :shortname))
+
+      {{rsk, _bsk}, short} ->
+        {rpk, bpk} = rsk |> Ed25519.derive_public_key() |> proper_keys
+
+        struct(
+          __MODULE__,
+          %{full | privatekey: rsk}
+          |> Map.put(:publickey, rpk)
+          |> Map.put(:string, "@" <> short <> "." <> bpk)
+        )
     end
   end
 
@@ -153,7 +159,8 @@ defmodule Terrasol.Author do
     end
   end
 
-  def build(input) when is_map(input), do: build(%{shortname: build_random_sn([])})
+  def build(input) when is_map(input),
+    do: build(input |> Map.put(:shortname, build_random_sn([])))
 
   @snfirst 'abcdefghijklmnopqrstuvwxyz'
   @snok @snfirst ++ '1234567890'
