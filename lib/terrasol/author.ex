@@ -1,4 +1,8 @@
 defmodule Terrasol.Author do
+  @moduledoc """
+  Handling of Earthstar author strings and resulting 
+  Terrasol.Author.t structures
+  """
   @enforce_keys [
     :string,
     :shortname,
@@ -21,7 +25,9 @@ defmodule Terrasol.Author do
   end
 
   @doc """
-  Create a `Terrsol.Author` from a `keypair.json`-style file
+  Create a `Terrsol.Author` structure from a `keypair.json`-style file
+
+  `:error` on error
   """
   def from_keypair_file(filename) do
     try do
@@ -37,12 +43,12 @@ defmodule Terrasol.Author do
   end
 
   @doc """
-  Write a `keypair.json` file from a supplied identity.
+  Write a `keypair.json`-style file from a supplied identity.
   As a secret file, the `publickey` must be included.
   """
-  def to_keyair_file(author, filename)
+  def to_keypair_file(author, filename)
 
-  def to_keyair_file(%Terrasol.Author{privatekey: secret, string: address} = author, filename) do
+  def to_keypair_file(%Terrasol.Author{privatekey: secret, string: address} = author, filename) do
     try do
       content = %{"address" => address, "secret" => Terrasol.bencode(secret)} |> Jason.encode!()
 
@@ -54,16 +60,17 @@ defmodule Terrasol.Author do
     end
   end
 
-  def to_keyair_file(_, _), do: :error
+  def to_keypair_file(_, _), do: :error
 
   @doc """
-  Fill a %Terrasol.Author from a map or address string
+  Fill a `Terrasol.Author` structure from an address string or
+  (possibly incomplete) map.
 
-  Conflict resolution is determinisitic, but depends on implementation
-  specific ordering which is not gauranteed and should not be depended
-  upon being the same between versions.
+  Internal conflict resolution is determinisitic, but depends on
+  implementation-specific ordering which is not gauranteed and should
+  not be depended upon being the same between versions.
 
-  :error on invalid input
+  `:error` on invalid input
   """
   def build(input)
   def build(%Terrasol.Author{} = input), do: input
@@ -183,9 +190,9 @@ defmodule Terrasol.Author do
   end
 
   @doc """
-  Parse an author address into a Terrasol.Author
+  Parse an author address into a `Terrasol.Author`
 
-  :error on invalid input
+  `:error` on invalid input
   """
 
   def parse(address)

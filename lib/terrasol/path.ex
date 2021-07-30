@@ -1,4 +1,8 @@
 defmodule Terrasol.Path do
+  @moduledoc """
+  Handling of Earthstar path strings and the resulting
+  `Terrasol.Path.t` structures
+  """
   @upper 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   @lower 'abcdefghijklmnopqrstuvwxyz'
   @digit '0123456789'
@@ -20,7 +24,7 @@ defmodule Terrasol.Path do
   @type t() :: %__MODULE__{
           string: String.t(),
           segments: [String.t()],
-          ephemeral: bool(),
+          ephemeral: boolean(),
           writers: [Terrasol.Author.t()]
         }
   defimpl String.Chars, for: Terrasol.Path do
@@ -28,9 +32,9 @@ defmodule Terrasol.Path do
   end
 
   @doc """
-  Parse a path string into a Terrasol.Path
+  Parse an Earthstar path string into a `Terrasol.Path`
 
-  :error on invalid input
+  `:error` on invalid input
   """
 
   def parse(path)

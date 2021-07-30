@@ -1,4 +1,8 @@
 defmodule Terrasol.Workspace do
+  @moduledoc """
+  Handling of Earthstar workspace strings and resulting 
+  `Terrasol.Workspace.t` structures
+  """
   @enforce_keys [
     :string,
     :name,
@@ -19,9 +23,9 @@ defmodule Terrasol.Workspace do
   end
 
   @doc """
-  Parse a workspace address into a %Terrasol.Workspace.
+  Parse an Earthstar workspace address into a `Terrasol.Workspace`.
 
-  :error on invalid input
+  `:error` on invalid input
   """
 
   def parse(address)

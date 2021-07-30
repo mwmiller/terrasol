@@ -1,7 +1,7 @@
 defmodule Terrasol do
   @moduledoc """
   Various utility functions to assist with some of the
-  unique requirements for Terrasol documents.
+  unique requirements for Earthstar documents.
   """
 
   defimpl Jason.Encoder, for: [Terrasol.Author, Terrasol.Workspace, Terrasol.Path] do
@@ -11,13 +11,14 @@ defmodule Terrasol do
   end
 
   @doc """
-  the Base32 encoding standard for Earthstar
+  Encode the Base32 standard for Earthstar
 
-  iex> Terrasol.bencode("🤡💩")
-  "b6cp2jipqt6jks"
+  ## Examples
+      iex> Terrasol.bencode("🤡💩")
+      "b6cp2jipqt6jks"
 
-  iex> Terrasol.bencode("abcdef")
-  "bmfrggzdfmy"
+      iex> Terrasol.bencode("abcdef")
+      "bmfrggzdfmy"
   """
   @base_opts [case: :lower, padding: false]
   def bencode(bits) do
@@ -25,17 +26,20 @@ defmodule Terrasol do
   end
 
   @doc """
-  Decoding the Base32 standard for Earthstar
+  Decode the Base32 standard for Earthstar
 
-  iex> Terrasol.bdecode("b6cp2jipqt6jks")
-  "🤡💩"
+  ## Examples
+      iex> Terrasol.bdecode("b6cp2jipqt6jks")
+      "🤡💩"
 
-  iex> Terrasol.bdecode("bmfrggzdfmy")
-  "abcdef"
+      iex> Terrasol.bdecode("bmfrggzdfmy")
+      "abcdef"
 
-  iex(5)> Terrasol.bdecode("mfrggzdfmy")
-  :error
+      iex> Terrasol.bdecode("mfrggzdfmy")
+      :error
   """
+  def bdecode(encoded_string)
+
   def bdecode(<<"b", string::binary>>) do
     case Base.decode32(string, @base_opts) do
       :error -> :error
@@ -49,20 +53,22 @@ defmodule Terrasol do
   Convert a duration into a number of microseconds.
 
   Integer durations are taken as a number of seconds.
+
   Keyword lists are interpreted for the implemented durations.
   Unimplemented items are treated as 0
 
   :weeks, :days, :hours, :minutes
   :seconds, :milliseconds, :microseconds
 
-  iex> Terrasol.duration_us(600)
-  600000000
+  ## Examples
+        iex> Terrasol.duration_us(600)
+        600000000
 
-  iex> Terrasol.duration_us(minutes: 10, microseconds: 321)
-  600000321
+        iex> Terrasol.duration_us(minutes: 10, microseconds: 321)
+        600000321
 
-  iex> Terrasol.duration_us("600s")
-  0
+        iex> Terrasol.duration_us("600s")
+        0
   """
   def duration_us(duration)
   def duration_us(duration) when is_integer(duration), do: duration_us(seconds: duration)

@@ -21,7 +21,8 @@ defmodule Terrasol.MixProject do
     [
       {:ed25519, "~> 1.3"},
       {:equivalex, "~> 1.0"},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:ex_doc, "~>  0.0", only: :dev}
     ]
   end
 end

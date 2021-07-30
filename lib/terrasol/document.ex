@@ -2,7 +2,8 @@ defmodule Terrasol.Document do
   @nul32 <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
            0, 0, 0>>
   @moduledoc """
-  The core document struct
+  Handling of the Earthstar document format and the resulting
+  `Terrasol.Document.t` structures
   """
   @enforce_keys [
     :author,
@@ -55,8 +56,12 @@ defmodule Terrasol.Document do
   defp content_hash(doc), do: :crypto.hash(:sha256, doc.content)
 
   @doc """
-  Build a hopefully valid `Terrasol.Document` from a 
-  map containing all or some of the required keys.
+  Build a `Terrasol.Document` from a map containing all or some of the required keys.
+
+  This is resolved internally in a deterministic way which is implementation-specific
+  and should not be depended upon to remain the same between versions.
+
+  The final value is passed through `parse/1` returning as that function does.
   """
   def build(map) do
     build(map, [
@@ -133,8 +138,10 @@ defmodule Terrasol.Document do
   end
 
   @doc """
-  Parse and return a Terrsol.Document from a map.
-  Returns {:invalid, [error_fields]} on an invalid document
+  Parse and return a `Terrsol.Document` from a map.
+
+  Returns `{:invalid, [error_field]}` on an invalid document
+
   A string document is presumed to be JSON
   """
   def parse(document)
