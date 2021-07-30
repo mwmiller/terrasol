@@ -25,7 +25,7 @@ defmodule Terrasol.Author do
   end
 
   @doc """
-  Create a `Terrsol.Author` structure from a `keypair.json`-style file
+  Create a `Terrasol.Author` structure from a `keypair.json`-style file
 
   `:error` on error
   """

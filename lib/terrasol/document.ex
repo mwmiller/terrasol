@@ -61,6 +61,9 @@ defmodule Terrasol.Document do
   This is resolved internally in a deterministic way which is implementation-specific
   and should not be depended upon to remain the same between versions.
 
+  A `:ttl` key may be used. It will be parsed into a `:deleteAfter` using 
+  the document timestamp and adding `Terrasol.duration_us(ttl)`
+
   The final value is passed through `parse/1` returning as that function does.
   """
   def build(map) do
@@ -138,7 +141,7 @@ defmodule Terrasol.Document do
   end
 
   @doc """
-  Parse and return a `Terrsol.Document` from a map.
+  Parse and return a `Terrasol.Document` from a map.
 
   Returns `{:invalid, [error_field]}` on an invalid document
 
