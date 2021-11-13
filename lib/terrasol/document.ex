@@ -37,7 +37,7 @@ defmodule Terrasol.Document do
           path: Terrasol.Path.t(),
           signature: String.t(),
           timestamp: pos_integer(),
-          workspace: Terasol.Workspace.t()
+          workspace: Terrasol.Workspace.t()
         }
 
   defp compute_hash(doc) do
