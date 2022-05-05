@@ -1,7 +1,7 @@
 ExUnit.start()
 
 defmodule ExampleData do
-  def spec_map do
+  def es4_spec_map do
     %{
       :author => "@suzy.bjzee56v2hd6mv5r5ar3xqg3x3oyugf7fejpxnvgquxcubov4rntq",
       :content => "Flowers are pretty",
