@@ -31,7 +31,6 @@ defmodule Terrasol.Document.ES4 do
   Handling of the Earthstar "es.4" document format and the resulting
   structures
   """
-  @derive Jason.Encoder
 
   defp compute_hash(doc) do
     Terrasol.bencode(

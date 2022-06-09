@@ -17,16 +17,16 @@ defmodule Terrasol.Document do
 
   mods_to_load = fn ->
     head =
-      case Application.fetch_env(:terrasol, :load_default_format_mods) do
+      case Application.compile_env(:terrasol, :load_default_format_mods) do
         {:ok, false} -> []
         # They need an explicit `false` to avoid this
         _ -> [Terrasol.Document.ES4]
       end
 
     tail =
-      case Application.fetch_env(:terrasol, :format_mods) do
+      case Application.compile_env(:terrasol, :format_mods) do
         {:ok, list} -> list
-        :error -> []
+        _ -> []
       end
 
     head ++ tail
