@@ -40,5 +40,4 @@ defmodule TerrasolPathTest do
     assert :error = Terrasol.Path.parse("/food/🍆/nutrition")
     assert :error = Terrasol.Path.parse("/about/~@suzy.abc/name")
   end
-
 end

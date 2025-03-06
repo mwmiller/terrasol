@@ -169,8 +169,8 @@ defmodule Terrasol.Author do
   def build(input) when is_map(input),
     do: build(input |> Map.put(:shortname, build_random_sn([])))
 
-  @snfirst 'abcdefghijklmnopqrstuvwxyz'
-  @snok @snfirst ++ '1234567890'
+  @snfirst ~c"abcdefghijklmnopqrstuvwxyz"
+  @snok @snfirst ++ ~c"1234567890"
   defp build_random_sn(list) when length(list) == 4, do: list |> Enum.reverse() |> to_string
 
   defp build_random_sn([]) do

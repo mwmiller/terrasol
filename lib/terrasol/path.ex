@@ -3,10 +3,10 @@ defmodule Terrasol.Path do
   Handling of Earthstar path strings and the resulting
   `Terrasol.Path.t` structures
   """
-  @upper 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  @lower 'abcdefghijklmnopqrstuvwxyz'
-  @digit '0123456789'
-  @puncs '\'()-._~!$&+,:=@%'
+  @upper ~c"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  @lower ~c"abcdefghijklmnopqrstuvwxyz"
+  @digit ~c"0123456789"
+  @puncs ~c"'()-._~!$&+,:=@%"
   @allow @upper ++ @lower ++ @digit ++ @puncs
 
   @enforce_keys [
