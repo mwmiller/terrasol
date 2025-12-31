@@ -4,7 +4,7 @@ defmodule Terrasol.MixProject do
   def project do
     [
       app: :terrasol,
-      version: "2.0.2",
+      version: "2.0.3",
       elixir: "~> 1.12",
       name: "Terrasol",
       source_url: "https://github.com/mwmiller/terrasol",
@@ -22,7 +22,7 @@ defmodule Terrasol.MixProject do
 
   defp deps do
     [
-      {:ed25519, "~> 1.3"},
+      {:ed25519, "~> 1.5"},
       {:equivalex, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:ex_doc, "~>  0.0", only: :dev}
